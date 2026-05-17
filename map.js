@@ -73,38 +73,80 @@ function toggleAll(type, el) {
 
 function toggleResourceList(event) {
   event.stopPropagation();
-  document.getElementById("sidebar-tab").style.display = "none";
-  document.getElementById("right-sidebar-body").innerHTML = `
-    ${resourceData
-      .map(
-        (p, i) => `
+  document.getElementById("rightbar-button").style.display = "none";
+
+  const selectedCats = categories.filter((c) => document.getElementById(`cat-${c}`).checked);
+  const selectedAuds = audiences.filter((a) => document.getElementById(`aud-${a}`).checked);
+  const allCatsSelected = selectedCats.length === categories.length;
+  const allAudsSelected = selectedAuds.length === audiences.length;
+
+  const filtered = resourceData.filter((p) => {
+    const buildingCats = (p.category || "").split(";").map((s) => s.trim()).filter((s) => s);
+    const buildingAuds = (p.audience || "").split(";").map((s) => s.trim()).filter((s) => s);
+    const catMatch = allCatsSelected || (selectedCats.length > 0 && buildingCats.some((s) => selectedCats.includes(s)));
+    const audMatch = allAudsSelected || (selectedAuds.length > 0 && buildingAuds.some((s) => selectedAuds.includes(s)));
+    return catMatch && audMatch;
+  });
+
+  document.getElementById("rightbar-body").innerHTML = `
+    ${filtered.map((p, i) => `
       <div class="toggle-card">
         <div class="toggle-card-header" onclick="openResourceCard(${i}, '${p.building_id}')">
-  <span>${p.resource_name || "Unknown"}</span>
-</div>
+          <span>${p.resource_name || "Unknown"}</span>
+        </div>
         <div class="toggle-card-body" id="card-${i}" style="display:none;">
           <div class="info-row"><span class="info-label">Address</span>${p.address || ""}</div>
           <div class="info-row"><span class="info-label">Email</span><a href="mailto:${p.email}">${p.email || ""}</a></div>
           <div class="info-row"><span class="info-label">Website</span><a href="${p.url}" target="_blank">${p.url || ""}</a></div>
         </div>
       </div>
-    `,
-      )
-      .join("")}
+    `).join("")}
   `;
-  console.log(document.getElementById("right-sidebar"));
-  document.getElementById("right-sidebar").classList.add("open");
+  document.getElementById("rightbar").classList.add("open");
 }
 
 function closeRightSidebar() {
-  document.getElementById("right-sidebar").classList.remove("open");
-  document.getElementById("sidebar-tab").style.display = "block";
+  document.getElementById("rightbar").classList.remove("open");
+  document.getElementById("rightbar-button").style.display = "block";
 }
 
 function toggleCard(i) {
   const body = document.getElementById(`card-${i}`);
+  const header = body.previousElementSibling;
   const isOpen = body.style.display !== "none";
+
+  // close all other cards first
+  document.querySelectorAll(".toggle-card-body").forEach((b) => {
+    b.style.display = "none";
+    if (b.previousElementSibling) b.previousElementSibling.classList.remove("active");
+  });
+
   body.style.display = isOpen ? "none" : "block";
+  header.classList.toggle("active", !isOpen);
+}
+
+function updateResourceCount() {
+  const selectedCats = categories.filter(
+    (c) => document.getElementById(`cat-${c}`).checked,
+  );
+  const selectedAuds = audiences.filter(
+    (a) => document.getElementById(`aud-${a}`).checked,
+  );
+
+  const allCatsSelected = selectedCats.length === categories.length;
+  const allAudsSelected = selectedAuds.length === audiences.length;
+
+  const count = resourceData.filter((p) => {
+    const buildingCats = (p.category || "").split(";").map((s) => s.trim()).filter((s) => s);
+    const buildingAuds = (p.audience || "").split(";").map((s) => s.trim()).filter((s) => s);
+
+    const catMatch = allCatsSelected || (selectedCats.length > 0 && buildingCats.some((s) => selectedCats.includes(s)));
+    const audMatch = allAudsSelected || (selectedAuds.length > 0 && buildingAuds.some((s) => selectedAuds.includes(s)));
+
+    return catMatch && audMatch;
+  }).length;
+
+  document.getElementById("resource-count").textContent = count;
 }
 
 function openResourceCard(i, buildingId) {
@@ -172,7 +214,7 @@ function applyFilter() {
     });
   });
   
-  const sidebar = document.getElementById("right-sidebar");
+  const sidebar = document.getElementById("rightbar");
   if (sidebar.classList.contains("open")) {
     const selectedCats = categories.filter(
       (c) => document.getElementById(`cat-${c}`).checked,
@@ -205,7 +247,7 @@ function applyFilter() {
       return catMatch && audMatch;
     });
 
-    document.getElementById("right-sidebar-body").innerHTML = `
+    document.getElementById("rightbar-body").innerHTML = `
     ${filtered
       .map(
         (p, i) => `
@@ -224,6 +266,7 @@ function applyFilter() {
       .join("")}
   `;
   }
+  updateResourceCount(); 
 }
 
 buildCheckboxes(categories, "category-list", "cat");
@@ -234,6 +277,7 @@ fetch("map-data/resources-edited.csv")
   .then((res) => res.text())
   .then((csvText) => {
     resourceData = parseCSV(csvText).filter((r) => r.resource_name);
+    updateResourceCount();
   });
 
 /* ── Load GeoJSON ── */
@@ -264,10 +308,10 @@ fetch("map-data/um-building-footprint-edited.geojson")
             );
 
             if (matches.length === 0) {
-              document.getElementById("right-sidebar-body").innerHTML = `
+              document.getElementById("rightbar-body").innerHTML = `
                 <div class="info-card-title">No data found</div>
               `;
-              document.getElementById("right-sidebar").classList.add("open");
+              document.getElementById("rightbar").classList.add("open");
               return;
             }
 
@@ -281,9 +325,9 @@ fetch("map-data/um-building-footprint-edited.geojson")
                 .split(";")
                 .map((s) => s.trim())
                 .filter((s) => s);
-              document.getElementById("sidebar-tab").style.display = "none";
+              document.getElementById("rightbar-button").style.display = "none";
 
-              document.getElementById("right-sidebar-body").innerHTML = `
+              document.getElementById("rightbar-body").innerHTML = `
                 <div class="toggle-card">
                   <div class="toggle-card-header" onclick="toggleCard(0)">
                     <span>${p.resource_name || ""}</span>
@@ -309,9 +353,9 @@ fetch("map-data/um-building-footprint-edited.geojson")
                 </div>
               `;
             } else {
-              document.getElementById("sidebar-tab").style.display = "none";
+              document.getElementById("rightbar-button").style.display = "none";
 
-              document.getElementById("right-sidebar-body").innerHTML = `
+              document.getElementById("rightbar-body").innerHTML = `
                 ${matches
                   .map((p, i) => {
                     const resourceCategories = (p.category || "")
@@ -353,7 +397,7 @@ fetch("map-data/um-building-footprint-edited.geojson")
               `;
             }
 
-            document.getElementById("right-sidebar").classList.add("open");
+            document.getElementById("rightbar").classList.add("open");
           });
         }
       },
@@ -361,11 +405,11 @@ fetch("map-data/um-building-footprint-edited.geojson")
   })
   .catch((err) => console.error("Failed to load GeoJSON:", err));
 
-document.getElementById("right-sidebar").addEventListener("click", (e) => {
+document.getElementById("rightbar").addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
-document.getElementById("right-sidebar").addEventListener("wheel", (e) => {
+document.getElementById("rightbar").addEventListener("wheel", (e) => {
   e.stopPropagation();
 });
 

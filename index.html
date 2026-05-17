@@ -15,7 +15,7 @@
 <body>
 
   <!-- Left sidebar -->
-  <div id="left-sidebar">
+  <div id="leftbar">
     <h2 class="text-umich-title">University of Michigan AI Resource Map</h2>
     <p>The AI Campus Resource Map is an interactive tool designed to help students, faculty, and researchers navigate AI-related opportunities across the Ann Arbor, Dearborn, and Flint campuses. This easy-to-use tool can you be used to find AI training sessions, research funding, and technical support tailored to meet your needs.</p>
    <div id="filter-section">
@@ -46,19 +46,23 @@
     <div style="background: #fff; margin: 10px -20px -20px -20px; padding: 12px 20px; text-align: center;">
       <img src="assets/AIIM_logo.png" style="width: 100%; max-width: 200px;" />
     </div>
-  </div> <!-- ← closes #left-sidebar -->
+  </div> <!-- ← closes #leftbar -->
 
   <!-- Map -->
   <div id="map">
-  <div id="sidebar-tab" onclick="toggleResourceList(event)">Show List</div>      
-    <div id="right-sidebar">
-      <div class="right-sidebar-header">
-        <button class="right-sidebar-close" onclick="closeRightSidebar()">×</button>
+  <div id="rightbar-button" onclick="toggleResourceList(event)">
+  ☰ Show <span id="resource-count">0</span> Resources
+</div>
+
+    <div id="rightbar">
+      <div class="rightbar-header">
+        <button class="rightbar-close" onclick="closeRightSidebar()">×</button>
       </div>
-      <div class="right-sidebar-body" id="right-sidebar-body">
+      <div class="rightbar-body" id="rightbar-body">
         <!-- content injected here -->
       </div>
     </div>
+
   </div>
 <script src="map.js"></script>
   

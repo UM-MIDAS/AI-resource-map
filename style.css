@@ -11,8 +11,8 @@ body {
 }
 
 /* LEFT SIDEBAR */
-#left-sidebar {
-  width: 260px;
+#leftbar {
+  width: 300px;
   background: #02274d;
   border-right: 1px solid #fff;
   flex-shrink: 0;
@@ -26,13 +26,13 @@ body {
 
 
 
-#left-sidebar h2 {
+#leftbar h2 {
   color: #FFCB05;
   font-size: 24px;
   margin-bottom: 20px;
 }
 
-#left-sidebar p {
+#leftbar p {
   font-family: 'Atkinson Hyperlegible', sans-serif;
   font-size: 14px;
   color: white;
@@ -56,7 +56,7 @@ body {
 
 .filter-list-label {
   font-family: 'Atkinson Hyperlegible', sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: white;
   text-transform: uppercase;
@@ -155,7 +155,7 @@ body {
 /* ══════════════════════════════
    RIGHT SIDEBAR
 ══════════════════════════════ */
-#right-sidebar {
+#rightbar {
   position: absolute;
   top: 0;
   right: 0;
@@ -171,28 +171,28 @@ body {
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
 }
 
-#right-sidebar.open { transform: translateX(0); }
+#rightbar.open { transform: translateX(0); }
 
-.right-sidebar-header {
+.rightbar-header {
   padding: 6px 8px;
   display: flex;
   justify-content: flex-end;
   flex-shrink: 0;
 }
 
-.right-sidebar-close {
+.rightbar-close {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 24px;    /* ← +2pt */
   color: #aaa;
   line-height: 1;
   padding: 2px 4px;
 }
 
-.right-sidebar-close:hover { color: #333; }
+.rightbar-close:hover { color: #333; }
 
-.right-sidebar-body {
+.rightbar-body {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -200,31 +200,35 @@ body {
   font-family: 'Atkinson Hyperlegible', sans-serif;
 }
 
-#sidebar-tab {
+#rightbar-button {
   position: absolute;
-  right: 15px;
-  top: 40%;
-  transform: translateY(-50%) rotate(-90deg);
-  transform-origin: right center;
-  background: #00274C;
-  color: white;
+  right: 20px;
+  bottom: 40px;
+  background: #FFCB05;
+  color: #00274C;
   font-family: 'Atkinson Hyperlegible', sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  padding: 8px 15px;
-  border-radius: 6px 6px 0 0;
+  padding: 14px 24px;
+  border-radius: 12px;
   cursor: pointer;
   white-space: nowrap;
   z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all .15s;
 }
 
-#sidebar-tab:hover { background: #FFCB05; color: #00274C; }
+#rightbar-button:hover { background: #e6b800; }
+
 
 /* hide tab when sidebar is open */
-#right-sidebar.open ~ #sidebar-tab,
-.sidebar-open #sidebar-tab { display: none; }
+#rightbar.open ~ #rightbar-button,
+.sidebar-open #rightbar-button { display: none; }
 
 /* ── Info card (single resource) ── */
 .info-card-title {
@@ -316,7 +320,15 @@ body {
   background: #f9f9f9;
 }
 
+
 .toggle-card-header:hover { background: #f0f0f0; }
+
+.toggle-card-header.active {
+  background: #FFCB05;
+  color: #00274C;
+}
+
+.toggle-card-header.active:hover { background: #FFCB05; }
 
 .toggle-card-body {
   padding: 10px 12px;
