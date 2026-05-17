@@ -16,7 +16,6 @@ const categories = [
   "Applied & Domain Focused Research",
   "Arts, Humanities & Creative Practice",
   "Computing & Technical Resources",
-  "Computing and Technical Resource",
   "Consulting & Support",
   "Development & Methods",
   "Ethics, Society & Policy",
@@ -169,10 +168,11 @@ function applyFilter() {
     (a) => document.getElementById(`aud-${a}`).checked,
   );
 
-  document.getElementById("cat-all").checked =
-    selectedCats.length === categories.length;
-  document.getElementById("aud-all").checked =
-    selectedAuds.length === audiences.length;
+  const allCatsSelected = selectedCats.length === categories.length;
+  const allAudsSelected = selectedAuds.length === audiences.length;
+
+  document.getElementById("cat-all").checked = allCatsSelected;
+  document.getElementById("aud-all").checked = allAudsSelected;
 
   if (!geojsonLayer) return;
 
@@ -194,9 +194,6 @@ function applyFilter() {
           .map((s) => s.trim())
           .filter((s) => s);
 
-    const allCatsSelected = selectedCats.length === categories.length;
-    const allAudsSelected = selectedAuds.length === audiences.length;
-
     const catMatch =
       allCatsSelected ||
       (selectedCats.length > 0 &&
@@ -216,24 +213,15 @@ function applyFilter() {
   
   const sidebar = document.getElementById("rightbar");
   if (sidebar.classList.contains("open")) {
-    const selectedCats = categories.filter(
-      (c) => document.getElementById(`cat-${c}`).checked,
-    );
-    const selectedAuds = audiences.filter(
-      (a) => document.getElementById(`aud-${a}`).checked,
-    );
-
     const filtered = resourceData.filter((p) => {
       const buildingCats = (p.category || "")
         .split(";")
         .map((s) => s.trim())
         .filter((s) => s);
       const buildingAuds = (p.audience || "")
-        .split((s) => s.trim())
+        .split(";")
+        .map((s) => s.trim())
         .filter((s) => s);
-
-      const allCatsSelected = selectedCats.length === categories.length;
-      const allAudsSelected = selectedAuds.length === audiences.length;
 
       const catMatch =
         allCatsSelected ||

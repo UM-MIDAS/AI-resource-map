@@ -70,8 +70,6 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.filter-list.open { display: block; }
-
 .filter-item {
   display: flex;
   align-items: flex-start;
@@ -225,8 +223,7 @@ body {
 
 
 /* hide tab when sidebar is open */
-#rightbar.open ~ #rightbar-button,
-.sidebar-open #rightbar-button { display: none; }
+#rightbar.open ~ #rightbar-button { display: none; }
 
 /* ── Info card (single resource) ── */
 .info-card-title {
@@ -270,17 +267,6 @@ body {
 .toggle-card-body .info-row:last-of-type {
   margin-bottom: 0;
 }
-
-.learn-more {
-  display: inline;
-  margin-left: 4px;
-  font-size: 11px;
-  color: #00274C;
-  opacity: 0.5;
-  text-decoration: none;
-}
-
-.learn-more:hover { opacity: 1; }
 
 .filter-tags {
   display: flex;
