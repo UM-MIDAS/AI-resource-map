@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Resource Map</title>
+  <link rel="icon" href="assets/Block_M-Hex-padded.png">
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -32,6 +33,14 @@
     <div class="filter-item" style="margin-bottom: 8px;">
       <input type="checkbox" id="aud-all" checked onchange="toggleAll('audience', this)" />
       <label for="aud-all" style="font-weight:700; color:#00274C;">Select All</label>
+    </div>
+  </div>
+
+  <div class="filter-list-label" style="margin-top: 8px;">Filter by Thematic Area</div>
+  <div class="filter-list open" id="thematic-list">
+    <div class="filter-item" style="margin-bottom: 8px;">
+      <input type="checkbox" id="thm-all" checked onchange="toggleAll('thematic', this)" />
+      <label for="thm-all" style="font-weight:700; color:#00274C;">Select All</label>
     </div>
   </div>
 </div>

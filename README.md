@@ -9,9 +9,10 @@ The interactive map provides several features to help users explore AI resources
 
 **A — Title & Introduction.** A header and brief description in the left sidebar introduce the AI Resource Map and its purpose.
 
-**B — Filter Panels.** Two multi-select filter lists let users narrow down resources:
+**B — Filter Panels.** Three multi-select filter lists let users narrow down resources:
 - *Filter by Category* : filter buildings by service type (e.g., AI Development, AI Research, Consulting & Support, Ethics, Society & Policy, Funding & Project Development).
 - *Filter by Audience* : filter by intended user group (Faculty, Undergraduate, Graduate).
+- *Filter by Thematic Area* : filter by domain/topic area (e.g., AI & Machine Learning, Health, Robotics & Autonomy, Ethics & Policy).
 
 Each list includes a "Select All" toggle. Buildings on the map are color-coded in real time: matching AI resource buildings appear in maize (#FFCB05).
 

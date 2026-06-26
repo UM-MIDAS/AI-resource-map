@@ -4,7 +4,7 @@
 
 // Service categories used to tag each AI resource.
 // Order here = display order in the "Filter by Category" checkbox list.
-// Must match the values used in resources-edited.csv exactly,
+// Must match the values used in resource_new.csv exactly,
 // otherwise filtering will silently miss rows.
 const categories = [
   "AI Development",
@@ -21,6 +21,21 @@ const categories = [
 
 // Audience groups used to tag each AI resource.
 const audiences = ["Faculty", "Undergraduate", "Graduate"];
+
+// Thematic/domain areas used to tag each AI resource.
+// Order here = display order in the "Filter by Thematic Area" checkbox list.
+const thematicAreas = [
+  "AI & Machine Learning",
+  "Data Science & Statistics",
+  "Robotics & Autonomy",
+  "Health",
+  "Ethics & Policy",
+  "Arts & Humanities",
+  "Education",
+  "Physical Sciences & Engineering",
+  "Computing Infrastructure",
+  "Human-Computer Interaction",
+];
 
 // Predefined map views for the campus extent buttons.
 const extents = {
@@ -51,7 +66,7 @@ L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
 // The Leaflet GeoJSON layer holding all building polygons (set once data loads).
 let geojsonLayer = null;
 
-// Array of resource objects parsed from resources-edited.csv (set once data loads).
+// Array of resource objects parsed from resource_new.csv (set once data loads).
 let resourceData = [];
 
 /* ════════════
@@ -59,28 +74,67 @@ let resourceData = [];
 ════════════ */
 
 // Parses a CSV string into an array of objects keyed by header name.
-// Handles quoted fields that contain commas (e.g. addresses, lists).
+// RFC4180-aware: handles quoted fields containing commas, escaped ("")
+// quotes, and embedded newlines — row boundaries are only recognized
+// outside of quotes, so a newline inside a quoted field does not
+// fracture the record.
 function parseCSV(text) {
-  const rows = text.trim().split("\n");
-  const headers = rows[0].split(",").map((h) => h.trim());
-  return rows.slice(1).map((row) => {
-    const values = [];
-    let current = "";
-    let inQuotes = false;
-    for (let i = 0; i < row.length; i++) {
-      const char = row[i];
+  const rows = [];
+  let row = [];
+  let current = "";
+  let inQuotes = false;
+
+  const pushValue = () => {
+    row.push(current.trim());
+    current = "";
+  };
+  const pushRow = () => {
+    pushValue();
+    rows.push(row);
+    row = [];
+  };
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    if (inQuotes) {
       if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === "," && !inQuotes) {
-        values.push(current.trim());
-        current = "";
+        if (text[i + 1] === '"') {
+          current += '"';
+          i++; // skip the escaped quote's second character
+        } else {
+          inQuotes = false;
+        }
       } else {
         current += char;
       }
+      continue;
     }
-    values.push(current.trim());
-    return Object.fromEntries(headers.map((h, i) => [h, values[i] || ""]));
-  });
+
+    if (char === '"') {
+      inQuotes = true;
+    } else if (char === ",") {
+      pushValue();
+    } else if (char === "\r") {
+      // ignore; the following \n (if any) terminates the row
+    } else if (char === "\n") {
+      pushRow();
+    } else {
+      current += char;
+    }
+  }
+  // Final field/row, for files with no trailing newline.
+  if (current !== "" || row.length > 0) pushRow();
+
+  // Drop a trailing fully-empty row produced by a trailing newline in the file.
+  if (rows.length && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === "") {
+    rows.pop();
+  }
+
+  const headers = rows[0];
+  return rows.slice(1).map((values) =>
+    Object.fromEntries(headers.map((h, i) => [h, values[i] || ""])),
+  );
 }
 
 // Splits a semicolon-separated CSV cell into an array of trimmed, non-empty values.
@@ -102,25 +156,41 @@ function getSelectedFilters() {
   const selectedAuds = audiences.filter(
     (a) => document.getElementById(`aud-${a}`).checked,
   );
+  const selectedThemes = thematicAreas.filter(
+    (t) => document.getElementById(`thm-${t}`).checked,
+  );
   return {
     selectedCats,
     selectedAuds,
+    selectedThemes,
     allCatsSelected: selectedCats.length === categories.length,
     allAudsSelected: selectedAuds.length === audiences.length,
+    allThemesSelected: selectedThemes.length === thematicAreas.length,
   };
 }
 
-// Returns true if a resource's category + audience tags satisfy the active filters.
-// When all checkboxes in a group are selected, that group is treated as a pass-through.
-function matchesFilter(cats, auds, filters) {
-  const { selectedCats, selectedAuds, allCatsSelected, allAudsSelected } = filters;
+// Returns true if a resource's category + audience + thematic area tags satisfy
+// the active filters. When all checkboxes in a group are selected, that group
+// is treated as a pass-through.
+function matchesFilter(cats, auds, themes, filters) {
+  const {
+    selectedCats,
+    selectedAuds,
+    selectedThemes,
+    allCatsSelected,
+    allAudsSelected,
+    allThemesSelected,
+  } = filters;
   const catMatch =
     allCatsSelected ||
     (selectedCats.length > 0 && cats.some((s) => selectedCats.includes(s)));
   const audMatch =
     allAudsSelected ||
     (selectedAuds.length > 0 && auds.some((s) => selectedAuds.includes(s)));
-  return catMatch && audMatch;
+  const themeMatch =
+    allThemesSelected ||
+    (selectedThemes.length > 0 && themes.some((s) => selectedThemes.includes(s)));
+  return catMatch && audMatch && themeMatch;
 }
 
 // Returns the subset of resourceData that matches the current filter state.
@@ -128,7 +198,12 @@ function matchesFilter(cats, auds, filters) {
 function getFilteredResources() {
   const filters = getSelectedFilters();
   return resourceData.filter((p) =>
-    matchesFilter(parseList(p.category), parseList(p.audience), filters),
+    matchesFilter(
+      parseList(p.category),
+      parseList(p.audience),
+      parseList(p.thematic_area),
+      filters,
+    ),
   );
 }
 
@@ -154,8 +229,10 @@ function buildCheckboxes(list, containerId, prefix) {
 // Handler for the "Select All" checkbox in each filter group.
 // Mirrors the master checkbox state onto every child checkbox, then re-applies the filter.
 function toggleAll(type, el) {
-  const list = type === "category" ? categories : audiences;
-  const prefix = type === "category" ? "cat" : "aud";
+  const lists = { category: categories, audience: audiences, thematic: thematicAreas };
+  const prefixes = { category: "cat", audience: "aud", thematic: "thm" };
+  const list = lists[type];
+  const prefix = prefixes[type];
   list.forEach((item) => {
     document.getElementById(`${prefix}-${item}`).checked = el.checked;
   });
@@ -206,6 +283,18 @@ function renderResourceCard(p, i, { detailed = false, open = false, mode = "togg
     ? `<div class="info-desc">${p.description || ""}</div>`
     : "";
 
+  // Tag (e.g. "Program", "Lab") shown as a plain badge under the description —
+  // intentionally not wrapped in an info-label row.
+  const tagBadge =
+    detailed && p.tag
+      ? `<div class="filter-tags" style="margin-top: 8px;"><span class="filter-tag">${p.tag}</span></div>`
+      : "";
+
+  // Phone is optional — only render the row if a value is present.
+  const phoneRow = p.phone
+    ? `<div class="info-row"><span class="info-label">Phone</span>${p.phone}</div>`
+    : "";
+
   const tagRows = detailed
     ? `
         <div class="info-row">
@@ -229,8 +318,13 @@ function renderResourceCard(p, i, { detailed = false, open = false, mode = "togg
       </div>
       <div class="toggle-card-body" id="card-${i}" ${bodyStyle}>
         ${description}
-        <div class="info-row"><span class="info-label">Address</span>${p.address || ""}</div>
+        ${tagBadge}
+        <div class="info-row">
+          <span class="info-label">Address</span>
+          ${p.address || ""}${p.building_room ? `<div>${p.building_room}</div>` : ""}
+        </div>
         <div class="info-row"><span class="info-label">Email</span><a href="mailto:${p.email}">${p.email || ""}</a></div>
+        ${phoneRow}
         <div class="info-row"><span class="info-label">Website</span><a href="${p.url}" target="_blank">${p.url || ""}</a></div>
         ${tagRows}
       </div>
@@ -254,19 +348,32 @@ function renderResourceList(resources, options) {
 // 4. Updates the resource count badge.
 function applyFilter() {
   const filters = getSelectedFilters();
-  const { allCatsSelected, allAudsSelected } = filters;
+  const { allCatsSelected, allAudsSelected, allThemesSelected } = filters;
 
   document.getElementById("cat-all").checked = allCatsSelected;
   document.getElementById("aud-all").checked = allAudsSelected;
+  document.getElementById("thm-all").checked = allThemesSelected;
 
   if (geojsonLayer) {
     geojsonLayer.eachLayer((layer) => {
       const props = layer.feature.properties;
       if (!props.is_resource) return;
 
-      const cats = Array.isArray(props.category) ? props.category : parseList(props.category);
-      const auds = Array.isArray(props.audience) ? props.audience : parseList(props.audience);
-      const match = matchesFilter(cats, auds, filters);
+      // Color by whether ANY resource hosted in this building matches the
+      // active filters. Matching is derived live from resourceData (the CSV)
+      // rather than from category/audience baked into the geojson itself —
+      // those embedded copies are stale/incomplete and have no thematic_area
+      // equivalent, so the CSV is the single source of truth here.
+      const buildingId = String(props.building_id);
+      const hosted = resourceData.filter((r) => r.building_id === buildingId);
+      const match = hosted.some((r) =>
+        matchesFilter(
+          parseList(r.category),
+          parseList(r.audience),
+          parseList(r.thematic_area),
+          filters,
+        ),
+      );
 
       layer.setStyle({
         fillColor: match ? "#FFCB05" : "#02274d",
@@ -374,12 +481,13 @@ function handleBuildingClick(feature, e) {
    Bootstrap: build UI, load data, wire events
 ═══════════════════════════════════════════════ */
 
-// Build the two filter checkbox lists into the left sidebar.
+// Build the three filter checkbox lists into the left sidebar.
 buildCheckboxes(categories, "category-list", "cat");
 buildCheckboxes(audiences, "audience-list", "aud");
+buildCheckboxes(thematicAreas, "thematic-list", "thm");
 
 // Load the AI resource data (CSV) and refresh the count badge once it's in.
-fetch("map-data/resources-edited.csv")
+fetch("map-data/resource_new.csv")
   .then((res) => res.text())
   .then((csvText) => {
     resourceData = parseCSV(csvText).filter((r) => r.resource_name);
