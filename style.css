@@ -357,3 +357,23 @@ body {
   padding: 10px 12px;
   border-top: 1px solid #e0e0e0;
 }
+
+.resource-list-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+  color: #aaa;
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.resource-list-divider::before,
+.resource-list-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}

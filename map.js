@@ -285,39 +285,46 @@ function closeRightSidebar() {
 
 /* ════════════════════════════════════════════════
    Resource card rendering
-   ─ detailed: include description + category/audience tag rows
-   ─ open:     start with card body visible (no display:none)
-   ─ mode:     "flyTo"  → click flies map to the building
-               "toggle" → click just expands/collapses the card
+   ─ open:  start with card body visible (no display:none)
+   ─ mode:  "flyTo"  → click flies map to the building
+            "toggle" → click just expands/collapses the card
 ═══════════════════════════════════════════════ */
 
 // Returns the HTML for a single resource card.
 // One renderer used by every sidebar view; options toggle the card's variants.
-function renderResourceCard(p, i, { detailed = false, open = false, mode = "toggle" } = {}) {
+function renderResourceCard(p, i, { open = false, mode = "toggle" } = {}) {
   const onClickAttr =
     mode === "flyTo"
       ? `openResourceCard(${i}, '${p.building_id}')`
       : `toggleCard(${i})`;
   const bodyStyle = open ? "" : 'style="display:none;"';
 
-  const description = detailed
-    ? `<div class="info-desc">${p.description || ""}</div>`
-    : "";
-
-  // Tag (e.g. "Program", "Lab") shown as a plain badge under the description —
-  // intentionally not wrapped in an info-label row.
-  const tagBadge =
-    detailed && p.tag
-      ? `<div class="filter-tags" style="margin-top: 8px;"><span class="filter-tag">${p.tag}</span></div>`
-      : "";
-
   // Phone is optional — only render the row if a value is present.
   const phoneRow = p.phone
     ? `<div class="info-row"><span class="info-label">Phone</span>${p.phone}</div>`
     : "";
 
-  const tagRows = detailed
-    ? `
+  // Tag (e.g. "Program", "Lab") shown as a plain badge under the description —
+  // intentionally not wrapped in an info-label row.
+  const tagBadge = p.tag
+    ? `<div class="filter-tags" style="margin-top: 8px;"><span class="filter-tag">${p.tag}</span></div>`
+    : "";
+
+  return `
+    <div class="toggle-card">
+      <div class="toggle-card-header ${open ? "active" : ""}" onclick="${onClickAttr}">
+        <span>${p.resource_name || "Unknown"}</span>
+      </div>
+      <div class="toggle-card-body" id="card-${i}" ${bodyStyle}>
+        <div class="info-desc">${p.description || ""}</div>
+        ${tagBadge}
+        <div class="info-row">
+          <span class="info-label">Address</span>
+          ${p.address || ""}${p.building_room ? `<div>${p.building_room}</div>` : ""}
+        </div>
+        <div class="info-row"><span class="info-label">Email</span><a href="mailto:${p.email}">${p.email || ""}</a></div>
+        ${phoneRow}
+        <div class="info-row"><span class="info-label">Website</span><a href="${p.url}" target="_blank">${p.url || ""}</a></div>
         <div class="info-row">
           <span class="info-label">Categories</span>
           <div class="filter-tags">
@@ -329,33 +336,36 @@ function renderResourceCard(p, i, { detailed = false, open = false, mode = "togg
           <div class="filter-tags">
             ${parseList(p.audience).map((s) => `<span class="filter-tag">${s}</span>`).join("")}
           </div>
-        </div>`
-    : "";
-
-  return `
-    <div class="toggle-card">
-      <div class="toggle-card-header" onclick="${onClickAttr}">
-        <span>${p.resource_name || "Unknown"}</span>
-      </div>
-      <div class="toggle-card-body" id="card-${i}" ${bodyStyle}>
-        ${description}
-        ${tagBadge}
-        <div class="info-row">
-          <span class="info-label">Address</span>
-          ${p.address || ""}${p.building_room ? `<div>${p.building_room}</div>` : ""}
         </div>
-        <div class="info-row"><span class="info-label">Email</span><a href="mailto:${p.email}">${p.email || ""}</a></div>
-        ${phoneRow}
-        <div class="info-row"><span class="info-label">Website</span><a href="${p.url}" target="_blank">${p.url || ""}</a></div>
-        ${tagRows}
       </div>
     </div>
   `;
 }
 
 // Renders a sequence of resource cards using shared options.
+// If the list contains a mix of on-campus (has building_id) and
+// off-campus/remote (no building_id) resources, they are split into
+// two groups with a labeled divider between them.
 function renderResourceList(resources, options) {
-  return resources.map((p, i) => renderResourceCard(p, i, options)).join("");
+  const physical = resources.filter((r) => r.building_id);
+  const remote   = resources.filter((r) => !r.building_id);
+
+  // Single group — no divider needed.
+  if (!physical.length || !remote.length) {
+    return resources.map((p, i) => renderResourceCard(p, i, options)).join("");
+  }
+
+  const divider = `
+    <div class="resource-list-divider">
+      <span>Remote ↑</span>
+    </div>
+  `;
+
+  // Assign each card a stable index across both groups so card IDs don't clash.
+  const remoteHtml   = remote.map((p, i) => renderResourceCard(p, i, options)).join("");
+  const physicalHtml = physical.map((p, i) => renderResourceCard(p, remote.length + i, options)).join("");
+
+  return remoteHtml + divider + physicalHtml;
 }
 
 /* ════════════════════════════════════════════════
@@ -483,14 +493,12 @@ function handleBuildingClick(feature, e) {
   } else if (matches.length === 1) {
     document.getElementById("rightbar-button").style.display = "none";
     body.innerHTML = renderResourceCard(matches[0], 0, {
-      detailed: true,
       open: true,
       mode: "toggle",
     });
   } else {
     document.getElementById("rightbar-button").style.display = "none";
     body.innerHTML = renderResourceList(matches, {
-      detailed: true,
       mode: "toggle",
     });
   }
