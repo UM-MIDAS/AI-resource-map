@@ -56,19 +56,58 @@ body {
 .filter-list-label {
   font-family: 'Atkinson Hyperlegible', sans-serif;
   font-size: 12px;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 10px 0px;
-}
-
-.filter-list {
+  font-weight: 400;
+  color: #3e4255;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.4;
   background: #fff;
   border-radius: 5px;
   padding: 8px 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
 }
+
+.filter-list-label:hover { color: #00274C; }
+
+.filter-list-label .chevron {
+  display: inline-block;
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+
+.filter-list-label.open .chevron {
+  transform: rotate(180deg);
+}
+
+.filter-list {
+  display: none;
+  background: #fff;
+  border-radius: 5px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.filter-list.open {
+  display: block;
+}
+
+.clear-filter-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  font-size: 12px;
+  color: #FFCB05;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.clear-filter-link:hover { color: #fff; }
 
 .filter-item {
   display: flex;

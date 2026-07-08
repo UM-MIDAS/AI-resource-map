@@ -50,13 +50,17 @@ const extents = {
 ════════════ */
 
 // Create the Leaflet map and add the Carto Light basemap tiles.
-const map = L.map("map").setView(extents.central.center, extents.central.zoom);
+// minZoom keeps users from zooming out far enough to see repeated/tiled
+// copies of the world map — there's nothing useful below "see all of
+// Michigan" for a campus resource map.
+const map = L.map("map", { minZoom: 9 }).setView(extents.central.center, extents.central.zoom);
 
 L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
   attribution:
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   subdomains: "abcd",
   maxZoom: 20,
+  noWrap: true,
 }).addTo(map);
 
 /* ════════════
@@ -224,6 +228,23 @@ function buildCheckboxes(list, containerId, prefix) {
     `;
     container.appendChild(div);
   });
+}
+
+// Expands or collapses a filter group's dropdown panel.
+// `label` is the clicked .filter-list-label; its panel is the next sibling element.
+function toggleFilterList(label) {
+  label.classList.toggle("open");
+  label.nextElementSibling.classList.toggle("open");
+}
+
+// Resets every filter checkbox back to checked (category, audience, thematic
+// area, and the three "Select All" boxes) — i.e. clears any active filtering
+// so every resource shows again — then re-applies.
+function clearFilters() {
+  document.querySelectorAll('#filter-section input[type="checkbox"]').forEach((cb) => {
+    cb.checked = true;
+  });
+  applyFilter();
 }
 
 // Handler for the "Select All" checkbox in each filter group.
