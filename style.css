@@ -26,7 +26,7 @@ body {
 
 #leftbar h2 {
   color: #FFCB05;
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 20px;
   padding: 15px 2px 0px 2px;
 }
@@ -333,8 +333,9 @@ body {
 
 .toggle-card-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   padding: 10px 12px;
   cursor: pointer;
   font-size: 14px;
@@ -352,6 +353,22 @@ body {
 }
 
 .toggle-card-header.active:hover { background: #FFCB05; }
+
+.card-type-tag {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  font-size: 10px;
+  color: #00274C;
+  background: #fff;
+  border: 1px solid #00274C;
+  border-radius: 20px;
+  padding: 1px 7px;
+  white-space: nowrap;
+  display: none;
+}
+
+.toggle-card-header.active .card-type-tag {
+  display: inline-block;
+}
 
 .toggle-card-body {
   padding: 10px 12px;

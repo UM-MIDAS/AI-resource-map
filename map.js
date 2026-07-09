@@ -304,20 +304,20 @@ function renderResourceCard(p, i, { open = false, mode = "toggle" } = {}) {
     ? `<div class="info-row"><span class="info-label">Phone</span>${p.phone}</div>`
     : "";
 
-  // Tag (e.g. "Program", "Lab") shown as a plain badge under the description —
-  // intentionally not wrapped in an info-label row.
+  // Tag (e.g. "Program", "Lab") lives inside the header and is shown/hidden
+  // via CSS based on the header's .active class — no extra JS needed.
   const tagBadge = p.tag
-    ? `<div class="filter-tags" style="margin-top: 8px;"><span class="filter-tag">${p.tag}</span></div>`
+    ? `<span class="card-type-tag">${p.tag}</span>`
     : "";
 
   return `
     <div class="toggle-card">
       <div class="toggle-card-header ${open ? "active" : ""}" onclick="${onClickAttr}">
         <span>${p.resource_name || "Unknown"}</span>
+        ${tagBadge}
       </div>
       <div class="toggle-card-body" id="card-${i}" ${bodyStyle}>
         <div class="info-desc">${p.description || ""}</div>
-        ${tagBadge}
         <div class="info-row">
           <span class="info-label">Address</span>
           ${p.address || ""}${p.building_room ? `<div>${p.building_room}</div>` : ""}
