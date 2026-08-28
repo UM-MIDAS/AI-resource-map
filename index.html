@@ -19,6 +19,8 @@
   <div id="leftbar">
     <h2 class="text-umich-title">University of Michigan AI Resource Map</h2>
     <p>The AI Campus Resource Map is an interactive tool designed to help students, faculty, and researchers navigate AI-related opportunities across the Ann Arbor, Dearborn, and Flint campuses. This easy-to-use tool can you be used to find AI training sessions, research funding, and technical support tailored to meet your needs.</p>
+   <input id="resource-search" type="text" placeholder="Type name or keyword" oninput="applyFilter()" onkeydown="if(event.key==='Enter') toggleResourceList(event)" autocomplete="off" />
+
    <div id="filter-section">
   <div class="filter-list-label" onclick="toggleFilterList(this)">Filter by Resource Type<span class="chevron">▾</span></div>
   <div class="filter-list" id="resource-list">

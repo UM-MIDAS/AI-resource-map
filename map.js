@@ -201,18 +201,16 @@ function matchesFilter(cats, auds, themes, filters) {
   return catMatch && audMatch && themeMatch;
 }
 
-// Returns the subset of resourceData that matches the current filter state.
-// Single source of truth for the sidebar list and the resource count badge.
+// Returns the subset of resourceData that matches the current filter state
+// AND the search query (checked against resource_name and description).
 function getFilteredResources() {
   const filters = getSelectedFilters();
-  return resourceData.filter((p) =>
-    matchesFilter(
-      parseList(p.category),
-      parseList(p.audience),
-      parseList(p.thematic_area),
-      filters,
-    ),
-  );
+  const query = (document.getElementById("resource-search")?.value || "").trim().toLowerCase();
+  return resourceData.filter((p) => {
+    if (!matchesFilter(parseList(p.category), parseList(p.audience), parseList(p.thematic_area), filters)) return false;
+    if (query && !p.resource_name.toLowerCase().includes(query) && !(p.description || "").toLowerCase().includes(query)) return false;
+    return true;
+  });
 }
 
 /* ════════════════════════════════════════════════
@@ -400,15 +398,13 @@ function applyFilter() {
       // those embedded copies are stale/incomplete and have no thematic_area
       // equivalent, so the CSV is the single source of truth here.
       const buildingId = String(props.building_id);
+      const query = (document.getElementById("resource-search")?.value || "").trim().toLowerCase();
       const hosted = resourceData.filter((r) => r.building_id === buildingId);
-      const match = hosted.some((r) =>
-        matchesFilter(
-          parseList(r.category),
-          parseList(r.audience),
-          parseList(r.thematic_area),
-          filters,
-        ),
-      );
+      const match = hosted.some((r) => {
+        if (!matchesFilter(parseList(r.category), parseList(r.audience), parseList(r.thematic_area), filters)) return false;
+        if (query && !r.resource_name.toLowerCase().includes(query) && !(r.description || "").toLowerCase().includes(query)) return false;
+        return true;
+      });
 
       layer.setStyle({
         fillColor: match ? "#FFCB05" : "#02274d",
