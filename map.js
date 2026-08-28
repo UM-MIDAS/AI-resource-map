@@ -2,21 +2,31 @@
    Constants
 ════════════ */
 
-// Service categories used to tag each AI resource.
-// Order here = display order in the "Filter by Category" checkbox list.
-// Must match the values used in resource_new.csv exactly,
-// otherwise filtering will silently miss rows.
-const categories = [
-  "AI Development",
-  "AI Research",
-  "Applied & Domain Focused Research",
-  "Arts, Humanities & Creative Practice",
-  "Computing & Technical Resources",
-  "Consulting & Support",
-  "Development & Methods",
-  "Ethics, Society & Policy",
+// Types of resources or services offered by each unit.
+// Order here = display order in the "Filter by Resource Type" list.
+// Must match the values used in resource_new.csv exactly.
+const resourceTypes = [
   "Funding & Project Development",
-  "Research & Methods",
+  "Computing Infrastructure",
+  "Data, Software & Technical Tools",
+  "Consulting & Technical Support",
+  "Training & Education",
+  "Research Collaboration",
+  "Methods & Research Support",
+];
+
+// Fields or domains to which each resource applies.
+// Order here = display order in the "Filter by Thematic Area" list.
+const thematicAreas = [
+  "AI & Machine Learning",
+  "Data Science & Statistics",
+  "Robotics & Autonomy",
+  "Health",
+  "Ethics, Society & Policy",
+  "Arts, Humanities & Creative Practice",
+  "Education",
+  "Physical Sciences & Engineering",
+  "Human-Computer Interaction",
 ];
 
 // Audience groups used to tag each AI resource.
@@ -29,20 +39,6 @@ const audiences = [
   "U-M Community"
 ];
 
-// Thematic/domain areas used to tag each AI resource.
-// Order here = display order in the "Filter by Thematic Area" checkbox list.
-const thematicAreas = [
-  "AI & Machine Learning",
-  "Data Science & Statistics",
-  "Robotics & Autonomy",
-  "Health",
-  "Ethics & Policy",
-  "Arts & Humanities",
-  "Education",
-  "Physical Sciences & Engineering",
-  "Computing Infrastructure",
-  "Human-Computer Interaction",
-];
 
 // Predefined map views for the campus extent buttons.
 const extents = {
@@ -162,8 +158,8 @@ const parseList = (v) =>
 // the selected items plus convenience flags for "are they all selected?".
 // Used by every function that needs to know what the user is filtering by.
 function getSelectedFilters() {
-  const selectedCats = categories.filter(
-    (c) => document.getElementById(`cat-${c}`).checked,
+  const selectedCats = resourceTypes.filter(
+    (c) => document.getElementById(`rtp-${c}`).checked,
   );
   const selectedAuds = audiences.filter(
     (a) => document.getElementById(`aud-${a}`).checked,
@@ -175,7 +171,7 @@ function getSelectedFilters() {
     selectedCats,
     selectedAuds,
     selectedThemes,
-    allCatsSelected: selectedCats.length === categories.length,
+    allCatsSelected: selectedCats.length === resourceTypes.length,
     allAudsSelected: selectedAuds.length === audiences.length,
     allThemesSelected: selectedThemes.length === thematicAreas.length,
   };
@@ -258,8 +254,8 @@ function clearFilters() {
 // Handler for the "Select All" checkbox in each filter group.
 // Mirrors the master checkbox state onto every child checkbox, then re-applies the filter.
 function toggleAll(type, el) {
-  const lists = { category: categories, audience: audiences, thematic: thematicAreas };
-  const prefixes = { category: "cat", audience: "aud", thematic: "thm" };
+  const lists = { category: resourceTypes, audience: audiences, thematic: thematicAreas };
+  const prefixes = { category: "rtp", audience: "aud", thematic: "thm" };
   const list = lists[type];
   const prefix = prefixes[type];
   list.forEach((item) => {
@@ -334,7 +330,7 @@ function renderResourceCard(p, i, { open = false, mode = "toggle" } = {}) {
         ${phoneRow}
         <div class="info-row"><span class="info-label">Website</span><a href="${p.url}" target="_blank">${p.url || ""}</a></div>
         <div class="info-row">
-          <span class="info-label">Categories</span>
+          <span class="info-label">Resource Type</span>
           <div class="filter-tags">
             ${parseList(p.category).map((s) => `<span class="filter-tag">${s}</span>`).join("")}
           </div>
@@ -389,7 +385,7 @@ function applyFilter() {
   const filters = getSelectedFilters();
   const { allCatsSelected, allAudsSelected, allThemesSelected } = filters;
 
-  document.getElementById("cat-all").checked = allCatsSelected;
+  document.getElementById("rtp-all").checked = allCatsSelected;
   document.getElementById("aud-all").checked = allAudsSelected;
   document.getElementById("thm-all").checked = allThemesSelected;
 
@@ -519,7 +515,7 @@ function handleBuildingClick(feature, e) {
 ═══════════════════════════════════════════════ */
 
 // Build the three filter checkbox lists into the left sidebar.
-buildCheckboxes(categories, "category-list", "cat");
+buildCheckboxes(resourceTypes, "resource-list", "rtp");
 buildCheckboxes(audiences, "audience-list", "aud");
 buildCheckboxes(thematicAreas, "thematic-list", "thm");
 

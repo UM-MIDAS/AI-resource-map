@@ -20,19 +20,11 @@
     <h2 class="text-umich-title">University of Michigan AI Resource Map</h2>
     <p>The AI Campus Resource Map is an interactive tool designed to help students, faculty, and researchers navigate AI-related opportunities across the Ann Arbor, Dearborn, and Flint campuses. This easy-to-use tool can you be used to find AI training sessions, research funding, and technical support tailored to meet your needs.</p>
    <div id="filter-section">
-  <div class="filter-list-label" onclick="toggleFilterList(this)">Filter by Category<span class="chevron">▾</span></div>
-  <div class="filter-list" id="category-list">
+  <div class="filter-list-label" onclick="toggleFilterList(this)">Filter by Resource Type<span class="chevron">▾</span></div>
+  <div class="filter-list" id="resource-list">
     <div class="filter-item" style="margin-bottom: 8px;">
-      <input type="checkbox" id="cat-all" checked onchange="toggleAll('category', this)" />
-      <label for="cat-all" style="font-weight:700; color:#00274C;">Select All</label>
-    </div>
-  </div>
-
-  <div class="filter-list-label" style="margin-top: 8px;" onclick="toggleFilterList(this)">Filter by Audience<span class="chevron">▾</span></div>
-  <div class="filter-list" id="audience-list">
-    <div class="filter-item" style="margin-bottom: 8px;">
-      <input type="checkbox" id="aud-all" checked onchange="toggleAll('audience', this)" />
-      <label for="aud-all" style="font-weight:700; color:#00274C;">Select All</label>
+      <input type="checkbox" id="rtp-all" checked onchange="toggleAll('category', this)" />
+      <label for="rtp-all" style="font-weight:700; color:#00274C;">Select All</label>
     </div>
   </div>
 
@@ -41,6 +33,14 @@
     <div class="filter-item" style="margin-bottom: 8px;">
       <input type="checkbox" id="thm-all" checked onchange="toggleAll('thematic', this)" />
       <label for="thm-all" style="font-weight:700; color:#00274C;">Select All</label>
+    </div>
+  </div>
+
+  <div class="filter-list-label" style="margin-top: 8px;" onclick="toggleFilterList(this)">Filter by Audience<span class="chevron">▾</span></div>
+  <div class="filter-list" id="audience-list">
+    <div class="filter-item" style="margin-bottom: 8px;">
+      <input type="checkbox" id="aud-all" checked onchange="toggleAll('audience', this)" />
+      <label for="aud-all" style="font-weight:700; color:#00274C;">Select All</label>
     </div>
   </div>
 
