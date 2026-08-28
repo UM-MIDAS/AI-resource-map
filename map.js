@@ -20,7 +20,14 @@ const categories = [
 ];
 
 // Audience groups used to tag each AI resource.
-const audiences = ["Faculty", "Undergraduate", "Graduate"];
+const audiences = [
+  "Faculty",
+  "Undergraduate",
+  "Graduate",
+  "Staff",
+  "Researcher",
+  "U-M Community"
+];
 
 // Thematic/domain areas used to tag each AI resource.
 // Order here = display order in the "Filter by Thematic Area" checkbox list.
