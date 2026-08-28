@@ -49,19 +49,20 @@ const extents = {
    Map init
 ════════════ */
 
-// Create the Leaflet map and add the Carto Light basemap tiles.
+// Create the Leaflet map and add the Stadia basemap tiles.
 // minZoom keeps users from zooming out far enough to see repeated/tiled
 // copies of the world map — there's nothing useful below "see all of
 // Michigan" for a campus resource map.
 const map = L.map("map", { minZoom: 9 }).setView(extents.central.center, extents.central.zoom);
 
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains: "abcd",
-  maxZoom: 20,
-  noWrap: true,
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.{ext}', {
+	minZoom: 0,
+	maxZoom: 20,
+	attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	ext: 'png'
 }).addTo(map);
+
+
 
 /* ════════════
    State
